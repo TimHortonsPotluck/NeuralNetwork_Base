@@ -9,8 +9,8 @@ class Layer:
         self.activation = activation
         self.z = 0
         if params is None:
-            self.weights = np.random.rand(out_nodes, in_nodes) * 2 - 1
-            self.biases = np.random.rand(out_nodes, 1) * 2 - 1
+            self.weights = np.random.normal(loc=0, scale=1, size=(out_nodes, in_nodes))
+            self.biases = np.random.normal(loc=0, scale=1, size=(out_nodes, 1))
         else:
             self.weights = params[0]
             self.biases = params[1]
@@ -137,6 +137,26 @@ class NeuralNetwork:
         for l in self.layers:
             l.weights += sd * np.random.randn(l.out_nodes, l.in_nodes)
             l.biases += sd * np.random.randn(l.out_nodes, 1)
+    
+    @staticmethod
+    def crossover(nn1, nn2):
+        if nn1.activation != nn2.activation or nn1.output_activation != nn2.output_activation:
+            print("networks must have same activation functions")
+            return
+        if nn1.Inodes != nn2.Inodes or nn1.Hlayers != nn2.Hlayers or nn1.Onodes != nn2.Onodes:
+            print("networks must have same size")
+            return
+        new_nn = nn1.copy()
+        for l in range(len(nn2.layers)):
+            lay = new_nn.layers[l]
+            for j in range(lay.out_nodes):
+                if np.random.rand() < .5:
+                    lay.biases[j][0] = nn2.layers[l].biases[j][0]
+                for i in range(lay.in_nodes):
+                    if np.random.rand() < .5:
+                        lay.weights[j][i] = nn2.layers[l].weights[j][i]
+        return new_nn
+            
     
     def random_changes(self, chance, max_amt):
         for l in self.layers:
